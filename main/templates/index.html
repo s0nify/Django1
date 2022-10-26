@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site</title>
+
+
+    <style>
+        html
+        {
+            height: 99.9%
+        }
+
+        body
+        {
+            background: linear-gradient(180deg, rgba(2,0,36,1) 0%, rgba(9,66,121,1) 44%, rgba(0,212,255,1) 100%);
+            height: 100%;
+            margin: 0;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }  
+
+        input
+        {
+            background-color: rgba(0, 0, 0, 0.175);
+            color: white;
+            font-size: 25px;
+            font-weight: 800;
+            border-radius: 60px;
+            transition: 0.3s;
+        }
+
+        input:hover
+        {
+            transform: scale(1.1);
+            background-color: rgba(171, 101, 101, 0.552);
+        }
+
+        button
+        {
+            background-color: rgba(9, 250, 146, 0.455);
+            border-radius: 20px;
+            width: 100%;
+            height: 100px;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        button:hover
+        {
+            background-color: rgb(9, 250, 146);
+            cursor: pointer;
+        }
+        
+        .services
+        {
+            position: fixed;
+            margin-top: 0%;
+            margin-left: 40%;
+            width: 500px;
+            height: 99%;
+            background-color: rgba(0, 0, 0, 0.395);
+            overflow-y: auto;
+        }
+
+        .service
+        {   
+
+            cursor: pointer;
+            margin-top: 5%;
+            
+
+        }
+
+    
+        .service_field
+        {
+            color: white;
+            width: 100%;
+            height:100%;
+            font-size: 25px;
+            font-weight: 800;
+            overflow-x: auto
+        }
+    </style>
+
+</head>
+
+
+
+
+
+<body>
+
+    <div style="margin-left: 5%; margin-top: 5%; position: fixed">
+        <input id="service_url" type="url" placeholder="URL" style="text-align:center">
+        <br>
+        <input id="service_login" type="text" placeholder="Login" style="margin-top: 2%; text-align: center;" >
+        <br>
+        <input id="service_password" type="text" placeholder="Password" style="margin-top: 2%; text-align: center;">
+        <br>
+        <button onclick="add_new_service()" style="margin-top: 2%; text-align: center; width: 69%">Add new accounting system</button>
+        {% if phone == True %}
+        <button id="phoneButton" onclick="phoneCondition()" style="margin-top: 2%; text-align: center; width: 69%; background-color: rgba(9, 250, 146, 0.455);">Phones condition<br>Currently enabled</button>
+        {% else %}
+        <button id="phoneButton" onclick="phoneCondition()" style="margin-top: 2%; text-align: center; width: 69%; background-color: rgba(161, 161, 161, 0.256);">Phones condition<br>Currently disabled</button>
+        {% endif %}
+    </div>
+    <div id="services" class="services">
+    {% for elem in services %}
+        {% if elem.selected == True %}
+        <div id="selected_service"  class="service" style="background-color: rgb(9, 250, 146);">
+            <div onclick="select_service(event)" onmouseover="change_service(event)" onmouseleave="do_not_change_service(event)" class="service_field">URL: {{ elem.url }} </div>
+            <div onclick="select_service(event)" onmouseover="change_service(event)" onmouseleave="do_not_change_service(event)" class="service_field">Login: {{ elem.login }} </div>
+            <div onclick="select_service(event)" onmouseover="change_service(event)" onmouseleave="do_not_change_service(event)" class="service_field">Password: {{ elem.pass }}</div>
+            <h1 id="remove_service" onclick="remove_service(event)" onmouseover='remove_service_hover(event)' onmouseleave="remove_service_restoreColor(event)" style="margin-top: -0.3%; font-weight: 800; color: white; background-color: rgb(131, 2, 2);">Remove</h1>
+        </div>
+        {% else %}
+        <div id="service"  class="service" style="background-color: rgba(161, 161, 161, 0.256);">
+            <div onclick="select_service(event)" onmouseover="change_service(event)" onmouseleave="do_not_change_service(event)" class="service_field">URL: {{ elem.url }} </div>
+            <div onclick="select_service(event)" onmouseover="change_service(event)" onmouseleave="do_not_change_service(event)" class="service_field">Login: {{ elem.login }} </div>
+            <div onclick="select_service(event)" onmouseover="change_service(event)" onmouseleave="do_not_change_service(event)" class="service_field">Password: {{ elem.pass }}</div>
+            <h1 id="remove_service" onclick="remove_service(event)" onmouseover='remove_service_hover(event)' onmouseleave="remove_service_restoreColor(event)" style="margin-top: -0.3%; font-weight: 800; color: white; background-color: rgb(131, 2, 2);">Remove</h1>
+        </div>
+        {% endif %}
+    {% endfor %}
+    </div>
+
+
+
+
+    <script>
+
+        // select new adress for backend
+        function select_service(event)
+        {
+            url = event.path[1].children[0].innerText.slice(5)            
+            js_request = 
+            {
+                url: url
+            }
+
+            resp = makePost('change_selected_service', js_request)
+
+            location.reload()
+        }
+
+        function remove_service(event)
+        {
+            url = event.path[1].children[0].innerText.slice(5)            
+            js_request = 
+            {
+                url: url
+            }
+
+            resp = makePost('remove_service', js_request)
+
+            location.reload()
+        }
+
+        function phoneCondition()
+        {
+            condition = {% if phone == True %} true {% else %} false {% endif %}
+            button = document.getElementById("phoneButton")
+            console.log(condition)
+            if (condition == true)
+            {
+                condition_json = 'False'
+            }
+            else
+            {
+                condition_json = 'True'
+            }
+
+            js_request = {
+                phone_changeTo: condition_json
+            }
+
+            resp = makePost('changePhone', js_request)
+
+            location.reload()
+        }
+
+
+        // change visual color on mouse over object and so on
+        function change_service(event)
+        {
+            if (event.path[1].id != 'selected_service')
+            {
+                event.path[1].style.backgroundColor = "rgba(9, 250, 146, 0.4)"
+            }
+ 
+        }
+
+        function do_not_change_service(event)
+        {
+
+            if (event.path[1].id != 'selected_service')
+            {
+                event.path[1].style.backgroundColor = "rgba(161, 161, 161, 0.256)"
+            }
+
+            
+        }
+
+        function remove_service_hover(event)
+        {
+            event.path[1].style.backgroundColor = "rgb(131, 2, 2)"
+
+        }
+
+        function remove_service_restoreColor(event)
+        {
+            if (event.path[1].id != 'selected_service')
+            {
+                event.path[1].style.backgroundColor = "rgba(161, 161, 161, 0.256)"
+            }
+            else
+            {
+                event.path[1].style.backgroundColor = "rgb(9, 250, 146)"
+
+            }
+        }
+
+
+
+        function add_new_service()
+        {
+            let url = document.getElementById("service_url").value
+            let login = document.getElementById("service_login").value
+            let password = document.getElementById("service_password").value
+
+            if (url != "" & login != "" & password != "")
+            {
+                js_request = {
+                url: url,
+                login: login,
+                password: password
+                }
+
+                resp = makePost("add_new_service", js_request)
+
+                location.reload();
+            }
+            else
+            {
+                window.alert("Fields can not be empty.")
+            }
+        }
+
+        function makePost(post_link, js_request)
+        {
+            var xhr = new XMLHttpRequest();
+            xhr.open("post", post_link, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+
+            console.log(js_request)
+            xhr.send(JSON.stringify(js_request))
+
+            // console.log("xhr send success")
+
+            return xhr
+
+
+            // Make POST request through this function using code below.
+
+            //************************************************************** 
+
+            // js_request = {
+            //     request: value
+            // }
+
+            // resp = makePost('path', js_request)
+
+            // resp.onload = () => {
+            //     // console.log(resp.response)
+            //     function(resp.response)
+            // }
+
+            //************************************************************** 
+
+        }
+    </script>
+</body>
+</html>
